@@ -1,49 +1,22 @@
-// Internet in One Word — make.fun bounty
-// Bounty: https://make.fun/bounty/u-ronigrv-the-internet-in-one-word-e388f33b
-// Gate: jawaban 1-30 karakter, SATU KATA.
-// Jawaban final: "Whiplash" (8 karakter).
-//
-// Kenapa Whiplash? Internet itu satu tarikan leher terus-menerus:
-// satu scroll lo lagi ketawa, scroll berikut lo kaget, marah, takjub,
-// lalu ketawa lagi — semuanya dalam hitungan detik. Tidak ada medium
-// lain yang melempar emosi lo secepat dan sekeras itu, bolak-balik,
-// tanpa jeda. Whiplash bukan cuma kecepatan — itu benturan arah yang
-// tiba-tiba. Itulah internet: bukan sekadar "cepat" atau "luas",
-// tapi guncangan konstan antara extremes.
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
 
-const fs = require("node:fs");
-const path = require("node:path");
+const ANSWER = "Contradictionary";
 
-const ANSWER = "Whiplash";
-
-// Gate bounty: 1-30 karakter, satu kata (tanpa spasi).
-if (ANSWER.length < 1 || ANSWER.length > 30) {
-  throw new Error(
-    "Jawaban di luar gate: panjang harus 1-30 karakter, didapat " +
-      ANSWER.length
-  );
+if (ANSWER.length !== 16) {
+  throw new Error(`Answer must be exactly 16 characters, got ${ANSWER.length}`);
 }
-if (/\s/.test(ANSWER)) {
-  throw new Error("Jawaban harus satu kata (tanpa spasi).");
-}
-if (ANSWER.trim() !== ANSWER) {
-  throw new Error("Jawaban tidak boleh diawali/diakhiri spasi.");
+if (!/^[A-Za-z]+$/.test(ANSWER)) {
+  throw new Error("Answer must be a single word (letters only)");
 }
 
-const outDir =
-  process.env.MAKEFUN_OUTPUT_DIR ||
-  process.env.MAKEFUN_OUTPUT ||
-  "/output";
+const outDir = process.env.MAKEFUN_OUTPUT_DIR || process.env.MAKEFUN_OUTPUT || "/output";
 
-fs.mkdirSync(outDir, { recursive: true });
-const outPath = path.join(outDir, "entry.txt");
-fs.writeFileSync(outPath, ANSWER, "utf8");
+mkdirSync(outDir, { recursive: true });
+writeFileSync(join(outDir, "entry.txt"), ANSWER, "utf8");
 
-console.log("entry.txt ditulis: " + outPath + " (" + ANSWER.length + " karakter)");
-
-// Verifikasi baca-balik: file yang tertulis harus byte-identik dengan jawaban.
-const written = fs.readFileSync(outPath, "utf8");
-if (written !== ANSWER) {
-  throw new Error("entry.txt tidak cocok dengan jawaban final.");
+// Post-write verification: entry.txt must be exactly the answer, 16 bytes, no trailing newline.
+const written = readFileSync(join(outDir, "entry.txt"), "utf8");
+if (written !== ANSWER || written.length !== 16) {
+  throw new Error(`entry.txt mismatch: got ${JSON.stringify(written)}`);
 }
-console.log("Terverifikasi: entry.txt byte-identik dengan jawaban final.");
